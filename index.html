@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>日記 · nikki</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@400;500;700&display=swap');
@@ -58,226 +59,16 @@ svg.spr,img.spr{image-rendering:pixelated;display:block;}
 </head>
 <body>
 <div id="root"></div>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="text/babel" data-presets="react">
-const {useState,useEffect,useRef,useCallback}=React;
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const{useState,useEffect,useRef,useCallback}=React,AUTH={secret:localStorage.getItem("nikki_secret")||""};async function api(o,a={}){const n=await fetch(o,{...a,headers:{...a.headers||{},"x-app-secret":AUTH.secret}});if(n.status===401){const r=new Error("unauthorized");throw r.code=401,r}return n}async function callClaude(o,a){const i=((await(await api("/api/claude",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({system:o,messages:[{role:"user",content:a}]})})).json()).content||[]).filter(l=>l.type==="text").map(l=>l.text).join("");return JSON.parse(i.replace(/```json/gi,"").replace(/```/g,"").trim())}async function loadState(){return(await api("/api/state")).json()}let saveTimer=null,blob={};function saveState(o){blob={...blob,...o},clearTimeout(saveTimer),saveTimer=setTimeout(()=>{api("/api/state",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify(blob)}).catch(()=>{})},600)}const K={a:"\u3042",i:"\u3044",u:"\u3046",e:"\u3048",o:"\u304A",ka:"\u304B",ki:"\u304D",ku:"\u304F",ke:"\u3051",ko:"\u3053",ga:"\u304C",gi:"\u304E",gu:"\u3050",ge:"\u3052",go:"\u3054",sa:"\u3055",si:"\u3057",shi:"\u3057",su:"\u3059",se:"\u305B",so:"\u305D",za:"\u3056",zi:"\u3058",ji:"\u3058",zu:"\u305A",ze:"\u305C",zo:"\u305E",ta:"\u305F",ti:"\u3061",chi:"\u3061",tu:"\u3064",tsu:"\u3064",te:"\u3066",to:"\u3068",da:"\u3060",di:"\u3062",du:"\u3065",de:"\u3067",do:"\u3069",na:"\u306A",ni:"\u306B",nu:"\u306C",ne:"\u306D",no:"\u306E",ha:"\u306F",hi:"\u3072",hu:"\u3075",fu:"\u3075",he:"\u3078",ho:"\u307B",ba:"\u3070",bi:"\u3073",bu:"\u3076",be:"\u3079",bo:"\u307C",pa:"\u3071",pi:"\u3074",pu:"\u3077",pe:"\u307A",po:"\u307D",ma:"\u307E",mi:"\u307F",mu:"\u3080",me:"\u3081",mo:"\u3082",ya:"\u3084",yu:"\u3086",yo:"\u3088",ra:"\u3089",ri:"\u308A",ru:"\u308B",re:"\u308C",ro:"\u308D",wa:"\u308F",wo:"\u3092",vu:"\u3094",kya:"\u304D\u3083",kyu:"\u304D\u3085",kyo:"\u304D\u3087",gya:"\u304E\u3083",gyu:"\u304E\u3085",gyo:"\u304E\u3087",sha:"\u3057\u3083",shu:"\u3057\u3085",sho:"\u3057\u3087",sya:"\u3057\u3083",syu:"\u3057\u3085",syo:"\u3057\u3087",ja:"\u3058\u3083",ju:"\u3058\u3085",jo:"\u3058\u3087",jya:"\u3058\u3083",jyu:"\u3058\u3085",jyo:"\u3058\u3087",cha:"\u3061\u3083",chu:"\u3061\u3085",cho:"\u3061\u3087",tya:"\u3061\u3083",tyu:"\u3061\u3085",tyo:"\u3061\u3087",nya:"\u306B\u3083",nyu:"\u306B\u3085",nyo:"\u306B\u3087",hya:"\u3072\u3083",hyu:"\u3072\u3085",hyo:"\u3072\u3087",bya:"\u3073\u3083",byu:"\u3073\u3085",byo:"\u3073\u3087",pya:"\u3074\u3083",pyu:"\u3074\u3085",pyo:"\u3074\u3087",mya:"\u307F\u3083",myu:"\u307F\u3085",myo:"\u307F\u3087",rya:"\u308A\u3083",ryu:"\u308A\u3085",ryo:"\u308A\u3087",fa:"\u3075\u3041",fi:"\u3075\u3043",fe:"\u3075\u3047",fo:"\u3075\u3049","-":"\u30FC",".":"\u3002",",":"\u3001","?":"\uFF1F","!":"\uFF01","~":"\u301C"};function toKana(o){let a="",n=0;for(;n<o.length;){const r=o[n];if(!/[a-zA-Z'\-.,?!~]/.test(r)){a+=r,n++;continue}const i=o.slice(n).toLowerCase();if(i.startsWith("tch")){a+="\u3063",n++;continue}if(/^([bcdfghjkmprstvwz])\1/.test(i)){a+="\u3063",n++;continue}if(i[0]==="n"){if(i[1]==="'"){a+="\u3093",n+=2;continue}if(i[1]==="n"){a+="\u3093",n+=2;continue}if(i[1]&&!/[aiueoy]/.test(i[1])){a+="\u3093",n++;continue}if(n===o.length-1){a+="n",n++;continue}}let l=!1;for(const u of[3,2,1]){const m=i.slice(0,u);if(K[m]){a+=K[m],n+=u,l=!0;break}}l||(a+=r,n++)}return a}const TPL=[["........","..oooo..",".obbbbo.","obbbbbbo","obebbebo","obbbbbbo",".obbbbo.","..oooo.."],["...o....","..obo...",".obbbbo.","obebbebo","obbaabbo","obbbbbbo",".obbbbo.","..o..o.."],[".o....o.","obo..obo","obbbbbbo","obebbebo","obbbbbbo","obbaabbo",".obbbbo.","..o..o.."],["o......o",".o....o.","..obbo..",".obebeo.",".obbbbo.",".oabbao.",".obbbbo.","..o..o.."],["...oo...","..obbo..",".obbbbo.","obbllbbo","obebbebo","obbbbbbo",".obbbbo.","..oooo.."],["...aa...","..aaaa..","...o....","..obbo..",".obebeo.",".obbbbo.",".obbbbo.","..oooo.."],["..oooo..",".obbbbo.","obwbbwbo","obebbebo","obbbbbbo","obbbbbbo","obbbbbbo","o.o.o.o."],["...oo...","...bb...",".obbbbo.","obbbbbbo",".obebeo.","..obbo..",".o.bb.o.","o..oo..o"],["........","..oooo..",".obllbo.","obllllbo","obebbebo","obbaabbo",".obbbbo.","..oooo.."],["..oooo..",".obbbbo.","obwbbwbo","oobbbboo","...bb...","..obbo..","..obbo..","..oooo.."]],HUES=[265,210,150,45,12,335,95,185,320,55];function palFor(o,a){const n=HUES[o%HUES.length],r=a?52:38;return{b:`hsl(${n},${r}%,66%)`,o:`hsl(${n},${r-6}%,40%)`,l:`hsl(${n},${r}%,85%)`,a:`hsl(${(n+40)%360},${r+8}%,60%)`}}const pad4=o=>String(o).padStart(4,"0"),packUrl=(o,a)=>o.replace(/\/+$/,"")+"/"+pad4(a)+".gif";function BuiltIn({sid:o,special:a,px:n}){const r=TPL[o%TPL.length],i=palFor(o,a),l={o:i.o,b:i.b,l:i.l,a:i.a,e:"#111",w:"#fff"},u=[];return r.forEach((m,v)=>[...m].forEach((c,f)=>{c!=="."&&u.push(React.createElement("rect",{key:f+"-"+v,x:f,y:v,width:"1",height:"1",fill:l[c]||i.b}))})),React.createElement("div",{style:{position:"relative",display:"inline-block"}},a&&React.createElement("div",{style:{position:"absolute",inset:-3,border:"1px solid var(--red)"}}),React.createElement("svg",{className:"spr",width:8*n,height:8*n,viewBox:"0 0 8 8"},u))}function Creature({c:o,pack:a,px:n}){const[r,i]=useState(!1),l=o.sid||1;return a&&a.base&&!r?React.createElement("img",{className:"spr",alt:"",src:packUrl(a.base,l),width:n*8,height:n*8,style:{objectFit:"contain"},onError:()=>i(!0)}):React.createElement(BuiltIn,{sid:l,special:o.special,px:n})}function EggView({hatch:o,pack:a}){if(a&&a.egg)return React.createElement("img",{className:"spr egg"+(o?" hatch":""),alt:"egg",src:a.egg,width:54,height:54,style:{objectFit:"contain"}});const n=["...oo...","..obbo..",".obllbo.","obbwbbbo","obbbbbbo","obbwbbbo","obbbbwbo",".obbbbo.","..oooo..","...oo..."],r={o:"#111",b:"#d8d5cd",l:"#fff",w:"#b3afa4"},i=[];return n.forEach((l,u)=>[...l].forEach((m,v)=>{m!=="."&&i.push(React.createElement("rect",{key:v+"-"+u,x:v,y:u,width:"1",height:"1",fill:r[m]}))})),React.createElement("svg",{className:"spr egg"+(o?" hatch":""),width:48,height:60,viewBox:"0 0 8 10"},i)}const pad=o=>String(o).padStart(2,"0"),today=()=>{const o=new Date;return`${o.getFullYear()}-${pad(o.getMonth()+1)}-${pad(o.getDate())}`},parseD=o=>{const[a,n,r]=o.split("-").map(Number);return new Date(a,n-1,r)},addDays=(o,a)=>{const n=parseD(o);return n.setDate(n.getDate()+a),`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`},diffDays=(o,a)=>Math.round((parseD(o)-parseD(a))/864e5),LEVELS=["N5","N4","N3","N2","N1"],ANGLES=["something small you noticed","a conversation you had","something that annoyed you","a plan for tomorrow","a memory this stirred","how your energy felt","food today","something you're looking forward to","a tiny win","weather and mood","a person you saw","a decision you made"];function Diary({initial:o}){const[a,n]=useState(o.level||"N5"),[r,i]=useState(o.romaji!==!1),[l,u]=useState(o.known||null),[m,v]=useState(o.aboutMe||""),[c,f]=useState(o.pack||null),[k,te]=useState(o.entries||{}),[x,oe]=useState(o.frozen||[]),[I,ae]=useState(o.gstats||{}),[h,O]=useState(o.daily||null),[N,$]=useState(""),[b,E]=useState(null),[B,R]=useState(!1),[J,F]=useState(""),[H,P]=useState(!1),[ne,V]=useState(!1),[w,_]=useState(!1),[U,se]=useState(!1),[W,Y]=useState(""),q=useRef(null),g=today();useEffect(()=>{const e=Object.keys(k).sort();if(e.length&&o.recon!==g){const t=e[e.length-1],s=diffDays(g,t)-1,d=Math.floor(e.length/7)-x.length;if(s>0&&s<=d){const p=[...x];for(let y=1;y<=s;y++)p.push(addDays(t,y));oe(p),saveState({frozen:p,recon:g})}else saveState({recon:g})}},[]);const j=l?l.grammar||[]:[],C=l?(l.vocab||[]).map(e=>e.text):[];function ie(){if(!j.length)return[];const e=j.map(t=>{const s=I[t.text]||{};return{g:t,u:s.used||0,l:s.last||"0000",r:Math.random()}});return e.sort((t,s)=>t.u-s.u||(t.l<s.l?-1:t.l>s.l?1:0)||t.r-s.r),e.slice(0,3).map(t=>({text:t.g.text,meaning:t.g.meaning}))}useEffect(()=>{(async()=>{if(h&&h.date===g)return;const e=ie(),t=ANGLES[Math.random()*ANGLES.length|0];let s="Write a line or two about your day.";try{const p=Math.random()<.4,y=await callClaude(`Write one warm one-line diary nudge (English) for a JLPT ${a} learner keeping a daily Japanese journal. Return ONLY {"nudge":string}.${m.trim()?` Learner: ${m.trim()}.`:""} Theme: ${t}.${e.length?` Invite them to use naturally: ${e.map(L=>L.text).join("\u3001")}.`:""}${p?" Make it a friendly question about their own life.":""} One sentence, encouraging, not corny.`,"nudge");y.nudge&&(s=y.nudge)}catch{}const d={date:g,targets:e,nudge:s};O(d),saveState({daily:d})})()},[l,a]);const D=Object.keys(k),z=new Set([...D,...x]),G=!!k[g],S=(()=>{let e=z.has(g)?g:addDays(g,-1);if(!z.has(e))return 0;let t=0;for(;z.has(e);)t++,e=addDays(e,-1);return t})(),re=(()=>{const e=[...z].sort();let t=0,s=0,d=null;for(const p of e)d&&diffDays(p,d)===1?s++:s=1,t=Math.max(t,s),d=p;return t})(),Z=Math.max(0,Math.floor(D.length/7)-x.length),le=e=>{const t=e.target.value;r?($(toKana(t)),requestAnimationFrame(()=>{const s=q.current;s&&(s.selectionStart=s.selectionEnd=s.value.length)})):$(t)},Q=async()=>{if(!N.trim()||B)return;R(!0),F(""),E(null);const e=h?.targets||[];try{const t=`You are a precise, encouraging Japanese diary tutor. Learner is JLPT ${a}. Today's nudge: "${h?.nudge||""}". They wrote a diary line in Japanese.
+Return ONLY minified JSON: corrected(natural correct version of intent), matched(bool), rubric({grammar:0-5,naturalness:0-5,scope:0-5}), notes(array up to 3 {span,fix,why}), suggestion(one richer natural alternative or ""), encouragement(one honest line), targets(array \u2014 for EACH target below: {point, used(bool used correctly), note}).
+Targets: ${e.length?e.map(d=>d.text).join("\u3001"):"(none)"}.
+Never invent errors; many phrasings valid. Japanese in Japanese, English explanations.${l?` They studied these; build feedback from them, flag reaching beyond.
+GRAMMAR: ${j.map(d=>d.text).join("\u3001")}
+VOCAB(${C.length}): ${C.join("\u3001")}`:""}`,s=await callClaude(t,N.trim());if(E(s),e.length){const d={...I};e.forEach(p=>{const y=(s.targets||[]).find(ue=>ue.point===p.text),L=d[p.text]||{used:0};d[p.text]={used:L.used+(y&&y.used?1:0),last:g}}),ae(d),saveState({gstats:d})}!w&&!G&&ce(N.trim(),s)}catch{F("Couldn't read that one. Try again in a moment.")}finally{R(!1)}},ce=(e,t)=>{P(!0),setTimeout(()=>{V(!0),setTimeout(()=>V(!1),400);const s=(S+1)%7===0||(D.length+1)%10===0,d=1+(Math.random()*251|0),p={text:e,corrected:t.corrected,ts:Date.now(),targets:t.targets||[],sid:d,special:s},y={...k,[g]:p};te(y),saveState({entries:y}),P(!1)},820)},de=async e=>{Y("");try{const t=JSON.parse(await e.text());if(!Array.isArray(t.grammar)&&!Array.isArray(t.vocab))throw 0;const s={grammar:t.grammar||[],vocab:t.vocab||[],exported_at:t.exported_at||null};u(s),saveState({known:s}),O(null)}catch{Y("Expected a known.json like { grammar:[...], vocab:[...] }.")}},be=e=>{n(e),saveState({level:e})},me=e=>{i(e),saveState({romaji:e})},ge=e=>{v(e),saveState({aboutMe:e})},X=(e,t)=>{const s={base:e||"",egg:t||""};f(s),saveState({pack:s})},A=({jp:e,en:t,v:s})=>React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,margin:"4px 0"}},React.createElement("div",{style:{width:120,fontSize:11}},e," ",React.createElement("span",{style:{color:"var(--mid)"}},t)),React.createElement("div",{className:"barwrap",style:{flex:1}},React.createElement("div",{className:"barfill",style:{width:`${Math.max(0,Math.min(5,s))/5*100}%`}})),React.createElement("div",{style:{width:24,textAlign:"right",fontSize:10,color:"var(--mid)"}},s,"/5")),ee=[];for(let e=27;e>=0;e--){const t=addDays(g,-e);ee.push({d:t,on:!!k[t],frz:x.includes(t),today:t===g})}const M=Object.keys(k).sort().map(e=>({d:e,...k[e]})),T=k[g];return React.createElement("div",{className:"wrap"},ne&&React.createElement("div",{className:"flash"}),React.createElement("div",{className:"center"},React.createElement("div",{style:{fontSize:24,letterSpacing:".1em"}},"\u65E5\u8A18"),React.createElement("div",{className:"lbl",style:{marginTop:6}},"a sentence a day")),React.createElement("div",{className:"center",style:{margin:"28px 0 4px"}},React.createElement("div",{className:"streaknum",style:{color:S>0?"var(--ink)":"var(--mid)"}},S),React.createElement("div",{className:"lbl",style:{marginTop:8}},"day streak"),React.createElement("div",{style:{fontSize:11,color:"var(--mid)",marginTop:10}},"longest ",re," \xB7 ",Z," freeze",Z===1?"":"s"," banked")),React.createElement("div",{className:"heat"},ee.map(e=>React.createElement("div",{key:e.d,className:"cell"+(e.on?" on":"")+(e.frz?" frz":"")+(e.today?" today":""),title:e.d}))),React.createElement("div",{className:"sep"},"\u2014 \u2014 \u2014"),React.createElement("div",{className:"center",style:{display:"flex",gap:2,justifyContent:"center",flexWrap:"wrap",alignItems:"center"}},LEVELS.map(e=>React.createElement("button",{key:e,className:"lv"+(e===a?" on":""),onClick:()=>be(e)},e)),React.createElement("span",{style:{color:"var(--faint)"}},"|"),React.createElement("button",{className:"lv"+(r?" on":""),onClick:()=>me(!r)},r?"\u3042 romaji":"romaji off")),React.createElement("div",{style:{marginTop:22}},React.createElement("div",{className:"center lbl"},new Date().toLocaleDateString(void 0,{weekday:"long",day:"numeric",month:"long"})),G&&!w?React.createElement("div",{className:"center",style:{marginTop:16}},React.createElement("div",{className:"lk red",style:{cursor:"default"}},"\u2713 entry logged"),T&&React.createElement("div",{style:{fontSize:16,margin:"14px 0",lineHeight:1.8}},T.corrected),T&&React.createElement("div",{style:{display:"flex",justifyContent:"center",margin:"16px 0"}},React.createElement("div",{className:"pop"},React.createElement(Creature,{c:T,pack:c,px:7}))),React.createElement("div",{style:{fontSize:11,color:"var(--mid)"}},"come back tomorrow to keep the streak"),React.createElement("div",{style:{marginTop:14}},React.createElement("button",{className:"lk mid",onClick:()=>{_(!0),E(null),$("")}},"practice more (no hatch) >>>"))):React.createElement(React.Fragment,null,React.createElement("div",{className:"center",style:{fontSize:14,margin:"12px 0 16px",lineHeight:1.7}},h?h.nudge:"\u2026",w&&React.createElement("span",{style:{color:"var(--mid)"}}," \xB7 extra practice")),h&&h.targets.length>0&&React.createElement("div",{className:"center",style:{marginBottom:16}},React.createElement("div",{className:"lbl",style:{marginBottom:7}},"today, try to use"),h.targets.map(e=>React.createElement("span",{key:e.text,className:"tchip"},e.text," ",React.createElement("span",{className:"m"},e.meaning)))),!l&&React.createElement("div",{className:"center",style:{fontSize:11,color:"var(--mid)",marginBottom:14}},"import your bunpro set (tune, below) for daily grammar targets"),React.createElement("div",{style:{display:"flex",gap:14,alignItems:"flex-start"}},React.createElement("div",{style:{flex:1}},React.createElement("textarea",{ref:q,rows:3,value:N,onChange:le,onKeyDown:e=>{(e.metaKey||e.ctrlKey)&&e.key==="Enter"&&Q()},placeholder:r?"type romaji \u2014 kyou wa\u2026":"\u4ECA\u65E5\u306F\u2026"}),React.createElement("div",{style:{display:"flex",alignItems:"center",gap:14,marginTop:12}},React.createElement("button",{className:"primary",onClick:Q,disabled:B||!N.trim()},B?"reading\u2026":w?"check":"log today"),React.createElement("span",{style:{fontSize:10,color:"var(--mid)"}},"\u2318/Ctrl+\u21B5"),w&&React.createElement("button",{className:"lk mid",onClick:()=>_(!1)},"back"))),!w&&React.createElement("div",{style:{width:60,textAlign:"center",flexShrink:0}},React.createElement(EggView,{hatch:H,pack:c}),React.createElement("div",{className:"lbl",style:{marginTop:6,fontSize:8}},H?"!!!":"egg"))),J&&React.createElement("div",{style:{color:"var(--red)",fontSize:12,marginTop:10}},J))),b&&React.createElement("div",{className:"box",style:{marginTop:22}},React.createElement("div",{className:"lbl"},"feedback"),React.createElement("div",{style:{fontSize:12,margin:"8px 0 12px",color:b.matched?"var(--ink)":"var(--red)"}},b.matched?"\u2713 \u305D\u308C\u3067\u4F1D\u308F\u308A\u307E\u3059":"\u306A\u304A\u3059\u3068\u3053\u308D\u304C\u3042\u308A\u307E\u3059"),React.createElement("div",{className:"lbl"},"natural version"),React.createElement("div",{style:{fontSize:18,lineHeight:1.7,borderBottom:"2px solid var(--ink)",display:"inline-block",margin:"6px 0 16px"}},b.corrected),b.rubric&&React.createElement("div",{style:{marginBottom:16}},React.createElement(A,{jp:"\u6587\u6CD5",en:"grammar",v:b.rubric.grammar}),React.createElement(A,{jp:"\u81EA\u7136\u3055",en:"natural",v:b.rubric.naturalness}),React.createElement(A,{jp:"\u7BC4\u56F2",en:`${a} scope`,v:b.rubric.scope})),Array.isArray(b.targets)&&b.targets.length>0&&React.createElement("div",{style:{marginBottom:16}},React.createElement("div",{className:"lbl",style:{marginBottom:7}},"grammar targets"),b.targets.map((e,t)=>React.createElement("span",{key:t,className:"tchip"+(e.used?" hit":"")},e.point," ",React.createElement("span",{className:"m"},e.used?"\u2713":"\u2014")))),Array.isArray(b.notes)&&b.notes.length>0&&React.createElement("div",{style:{marginBottom:14}},b.notes.map((e,t)=>React.createElement("div",{key:t,style:{padding:"7px 0",borderTop:t?"1px solid var(--faint)":"none",fontSize:13}},e.span?React.createElement("span",{style:{textDecoration:"line-through",color:"var(--mid)"}},e.span):null,e.span?" \u2192 ":"",e.fix,React.createElement("div",{style:{color:"var(--mid)",fontSize:11}},e.why)))),b.suggestion&&React.createElement("div",{style:{border:"1px solid var(--faint)",padding:"10px 12px",marginBottom:12}},React.createElement("div",{className:"lbl",style:{marginBottom:4}},"another way"),React.createElement("div",{style:{fontSize:15}},b.suggestion)),b.encouragement&&React.createElement("div",{style:{fontSize:13}},b.encouragement),React.createElement("div",{style:{fontSize:10,color:"var(--mid)",marginTop:12,lineHeight:1.6}},"a study aid, not a grade \u2014 japanese has many right answers and this can be off.")),React.createElement("div",{className:"sep"},"\u2014 \u2014 \u2014"),React.createElement("div",{className:"center lbl"},"collection \xB7 ",M.length),M.length===0?React.createElement("div",{className:"center",style:{fontSize:11,color:"var(--mid)",marginTop:12}},"log today and your egg hatches. each critter keeps the sentence that made it \u2014 hover to read."):React.createElement("div",{className:"garden",style:{marginTop:18}},M.slice().reverse().map(e=>React.createElement("div",{key:e.d,className:"gcell pop",tabIndex:0},React.createElement(Creature,{c:e,pack:c,px:5}),React.createElement("div",{className:"bubble"},React.createElement("div",{className:"d"},e.d),React.createElement("div",{className:"s"},e.corrected||e.text))))),React.createElement("div",{className:"sep"},"\u2014 \u2014 \u2014"),React.createElement("div",{className:"center"},React.createElement("button",{className:"lk mid",onClick:()=>se(e=>!e)},U?"tune \u25BE":"tune \u25B8")),U&&React.createElement("div",{className:"box",style:{marginTop:16}},React.createElement("div",{className:"lbl"},"bunpro known set"),l?React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,margin:"8px 0 16px"}},React.createElement("div",{style:{fontSize:12,flex:1}},"tuned to ",j.length," grammar + ",C.length," vocab",l.exported_at&&React.createElement("span",{style:{color:"var(--mid)"}}," \xB7 ",new Date(l.exported_at).toLocaleDateString())),React.createElement("button",{className:"lk red",onClick:()=>{u(null),saveState({known:null})}},"remove")):React.createElement("div",{style:{margin:"8px 0 4px"}},React.createElement("label",{className:"lk"},React.createElement("span",{style:{textDecoration:"underline"}},"import known.json >>>"),React.createElement("input",{type:"file",accept:".json,application/json",style:{display:"none"},onChange:e=>{const t=e.target.files&&e.target.files[0];t&&de(t)}}))),W&&React.createElement("div",{style:{color:"var(--red)",fontSize:11,marginBottom:8}},W),React.createElement("div",{className:"box",style:{margin:"12px 0 16px",borderColor:"var(--faint)"}},React.createElement("div",{className:"lbl",style:{marginBottom:8}},"how to sync from bunpro"),React.createElement("ol",{style:{margin:0,paddingLeft:16,fontSize:12,lineHeight:1.8}},React.createElement("li",null,"install tampermonkey, add the bunpro-export userscript"),React.createElement("li",null,"open bunpro.jp logged in \u2192 click \u2B07 export known.json (bottom-right)"),React.createElement("li",null,"back here \u2192 import known.json above. it syncs to all your devices."),React.createElement("li",{style:{color:"var(--mid)"}},"no tampermonkey? paste the console version into bunpro's dev console."))),React.createElement("div",{className:"lbl",style:{marginBottom:8}},"sprite pack (optional)"),React.createElement("div",{style:{fontSize:11,color:"var(--mid)",marginBottom:8,lineHeight:1.6}},"your own creature sprites: set a base URL where ",React.createElement("b",null,"0001.gif \u2026 0251.gif")," live. blank = built-in critters."),React.createElement("input",{type:"text",defaultValue:c?.base||"",placeholder:"https://your-site.com/sprites",onBlur:e=>X(e.target.value,c?.egg),style:{marginBottom:8,fontSize:12}}),React.createElement("input",{type:"text",defaultValue:c?.egg||"",placeholder:"egg image URL (optional)",onBlur:e=>X(c?.base,e.target.value),style:{marginBottom:6,fontSize:12}}),c&&(c.base||c.egg)&&React.createElement("button",{className:"lk red",onClick:()=>{f(null),saveState({pack:null})}},"clear pack"),React.createElement("div",{className:"lbl",style:{margin:"16px 0 8px"}},"about you"),React.createElement("input",{type:"text",defaultValue:m,onBlur:e=>ge(e.target.value),placeholder:"e.g. i make electronic music, love ramen & cats",style:{fontSize:12}}),React.createElement("div",{style:{fontSize:11,color:"var(--mid)",marginTop:6}},"tailors the daily nudge and sometimes asks about your life.")),React.createElement("div",{className:"marq"},React.createElement("div",{className:"marqin"},(S>0?`day ${S} \xB7 keep it alive \xB7 `:"start your streak today \xB7 ").repeat(8))))}function App(){const[o,a]=useState(AUTH.secret?"loading":"gate"),[n,r]=useState(null),[i,l]=useState(""),[u,m]=useState(""),v=async c=>{AUTH.secret=c,a("loading"),m("");try{blob=await loadState()||{},r(blob),localStorage.setItem("nikki_secret",c),a("ready")}catch(f){f.code===401?m("wrong passphrase"):m("couldn't connect \u2014 try again"),AUTH.secret="",localStorage.removeItem("nikki_secret"),a("gate")}};return useEffect(()=>{AUTH.secret&&v(AUTH.secret)},[]),o==="ready"?React.createElement(Diary,{initial:n}):o==="loading"?React.createElement("div",{className:"wrap center",style:{marginTop:80,color:"var(--mid)"}},"\u2026"):React.createElement("div",{className:"wrap center",style:{marginTop:80}},React.createElement("div",{style:{fontSize:24,letterSpacing:".1em"}},"\u65E5\u8A18"),React.createElement("div",{className:"lbl",style:{margin:"8px 0 24px"}},"enter passphrase"),React.createElement("div",{style:{maxWidth:280,margin:"0 auto",textAlign:"left"}},React.createElement("input",{type:"password",value:i,onChange:c=>l(c.target.value),onKeyDown:c=>{c.key==="Enter"&&i&&v(i)},placeholder:"passphrase",autoFocus:!0}),React.createElement("div",{style:{marginTop:12}},React.createElement("button",{className:"primary",onClick:()=>i&&v(i),disabled:!i},"enter")),u&&React.createElement("div",{style:{color:"var(--red)",fontSize:12,marginTop:10}},u)))}ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App,null));
 
-/* ---- auth-scoped API ---- */
-const AUTH={secret:localStorage.getItem("nikki_secret")||""};
-async function api(path,opts={}){
-  const r=await fetch(path,{...opts,headers:{...(opts.headers||{}),"x-app-secret":AUTH.secret}});
-  if(r.status===401){const e=new Error("unauthorized");e.code=401;throw e;}
-  return r;
-}
-async function callClaude(system,user){
-  const r=await api("/api/claude",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({system,messages:[{role:"user",content:user}]})});
-  const data=await r.json();
-  const t=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
-  return JSON.parse(t.replace(/```json/gi,"").replace(/```/g,"").trim());
-}
-async function loadState(){const r=await api("/api/state");return r.json();}
-let saveTimer=null,blob={};
-function saveState(patch){blob={...blob,...patch};clearTimeout(saveTimer);saveTimer=setTimeout(()=>{api("/api/state",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify(blob)}).catch(()=>{});},600);}
-
-/* ---- romaji → hiragana ---- */
-const K={a:"あ",i:"い",u:"う",e:"え",o:"お",ka:"か",ki:"き",ku:"く",ke:"け",ko:"こ",ga:"が",gi:"ぎ",gu:"ぐ",ge:"げ",go:"ご",sa:"さ",si:"し",shi:"し",su:"す",se:"せ",so:"そ",za:"ざ",zi:"じ",ji:"じ",zu:"ず",ze:"ぜ",zo:"ぞ",ta:"た",ti:"ち",chi:"ち",tu:"つ",tsu:"つ",te:"て",to:"と",da:"だ",di:"ぢ",du:"づ",de:"で",do:"ど",na:"な",ni:"に",nu:"ぬ",ne:"ね",no:"の",ha:"は",hi:"ひ",hu:"ふ",fu:"ふ",he:"へ",ho:"ほ",ba:"ば",bi:"び",bu:"ぶ",be:"べ",bo:"ぼ",pa:"ぱ",pi:"ぴ",pu:"ぷ",pe:"ぺ",po:"ぽ",ma:"ま",mi:"み",mu:"む",me:"め",mo:"も",ya:"や",yu:"ゆ",yo:"よ",ra:"ら",ri:"り",ru:"る",re:"れ",ro:"ろ",wa:"わ",wo:"を",vu:"ゔ",kya:"きゃ",kyu:"きゅ",kyo:"きょ",gya:"ぎゃ",gyu:"ぎゅ",gyo:"ぎょ",sha:"しゃ",shu:"しゅ",sho:"しょ",sya:"しゃ",syu:"しゅ",syo:"しょ",ja:"じゃ",ju:"じゅ",jo:"じょ",jya:"じゃ",jyu:"じゅ",jyo:"じょ",cha:"ちゃ",chu:"ちゅ",cho:"ちょ",tya:"ちゃ",tyu:"ちゅ",tyo:"ちょ",nya:"にゃ",nyu:"にゅ",nyo:"にょ",hya:"ひゃ",hyu:"ひゅ",hyo:"ひょ",bya:"びゃ",byu:"びゅ",byo:"びょ",pya:"ぴゃ",pyu:"ぴゅ",pyo:"ぴょ",mya:"みゃ",myu:"みゅ",myo:"みょ",rya:"りゃ",ryu:"りゅ",ryo:"りょ",fa:"ふぁ",fi:"ふぃ",fe:"ふぇ",fo:"ふぉ","-":"ー",".":"。",",":"、","?":"？","!":"！","~":"〜"};
-function toKana(src){let out="",i=0;while(i<src.length){const c=src[i];if(!/[a-zA-Z'\-.,?!~]/.test(c)){out+=c;i++;continue;}const seg=src.slice(i).toLowerCase();if(seg.startsWith("tch")){out+="っ";i++;continue;}if(/^([bcdfghjkmprstvwz])\1/.test(seg)){out+="っ";i++;continue;}if(seg[0]==="n"){if(seg[1]==="'"){out+="ん";i+=2;continue;}if(seg[1]==="n"){out+="ん";i+=2;continue;}if(seg[1]&&!/[aiueoy]/.test(seg[1])){out+="ん";i++;continue;}if(i===src.length-1){out+="n";i++;continue;}}let hit=false;for(const len of[3,2,1]){const s=seg.slice(0,len);if(K[s]){out+=K[s];i+=len;hit=true;break;}}if(!hit){out+=c;i++;}}return out;}
-
-/* ---- built-in critters ---- */
-const TPL=[["........","..oooo..",".obbbbo.","obbbbbbo","obebbebo","obbbbbbo",".obbbbo.","..oooo.."],["...o....","..obo...",".obbbbo.","obebbebo","obbaabbo","obbbbbbo",".obbbbo.","..o..o.."],[".o....o.","obo..obo","obbbbbbo","obebbebo","obbbbbbo","obbaabbo",".obbbbo.","..o..o.."],["o......o",".o....o.","..obbo..",".obebeo.",".obbbbo.",".oabbao.",".obbbbo.","..o..o.."],["...oo...","..obbo..",".obbbbo.","obbllbbo","obebbebo","obbbbbbo",".obbbbo.","..oooo.."],["...aa...","..aaaa..","...o....","..obbo..",".obebeo.",".obbbbo.",".obbbbo.","..oooo.."],["..oooo..",".obbbbo.","obwbbwbo","obebbebo","obbbbbbo","obbbbbbo","obbbbbbo","o.o.o.o."],["...oo...","...bb...",".obbbbo.","obbbbbbo",".obebeo.","..obbo..",".o.bb.o.","o..oo..o"],["........","..oooo..",".obllbo.","obllllbo","obebbebo","obbaabbo",".obbbbo.","..oooo.."],["..oooo..",".obbbbo.","obwbbwbo","oobbbboo","...bb...","..obbo..","..obbo..","..oooo.."]];
-const HUES=[265,210,150,45,12,335,95,185,320,55];
-function palFor(sid,special){const h=HUES[sid%HUES.length],s=special?52:38;return{b:`hsl(${h},${s}%,66%)`,o:`hsl(${h},${s-6}%,40%)`,l:`hsl(${h},${s}%,85%)`,a:`hsl(${(h+40)%360},${s+8}%,60%)`};}
-const pad4=n=>String(n).padStart(4,"0");
-const packUrl=(base,sid)=>base.replace(/\/+$/,"")+"/"+pad4(sid)+".gif";
-function BuiltIn({sid,special,px}){const rows=TPL[sid%TPL.length],p=palFor(sid,special),cm={o:p.o,b:p.b,l:p.l,a:p.a,e:"#111",w:"#fff"},rc=[];rows.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch!==".")rc.push(<rect key={x+"-"+y} x={x} y={y} width="1" height="1" fill={cm[ch]||p.b}/>);}));return <div style={{position:"relative",display:"inline-block"}}>{special&&<div style={{position:"absolute",inset:-3,border:"1px solid var(--red)"}}/>}<svg className="spr" width={8*px} height={8*px} viewBox="0 0 8 8">{rc}</svg></div>;}
-function Creature({c,pack,px}){const[err,setErr]=useState(false);const sid=c.sid||1;if(pack&&pack.base&&!err)return <img className="spr" alt="" src={packUrl(pack.base,sid)} width={px*8} height={px*8} style={{objectFit:"contain"}} onError={()=>setErr(true)}/>;return <BuiltIn sid={sid} special={c.special} px={px}/>;}
-function EggView({hatch,pack}){if(pack&&pack.egg)return <img className={"spr egg"+(hatch?" hatch":"")} alt="egg" src={pack.egg} width={54} height={54} style={{objectFit:"contain"}}/>;const rows=["...oo...","..obbo..",".obllbo.","obbwbbbo","obbbbbbo","obbwbbbo","obbbbwbo",".obbbbo.","..oooo..","...oo..."],cm={o:"#111",b:"#d8d5cd",l:"#fff",w:"#b3afa4"},rc=[];rows.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch!==".")rc.push(<rect key={x+"-"+y} x={x} y={y} width="1" height="1" fill={cm[ch]}/>);}));return <svg className={"spr egg"+(hatch?" hatch":"")} width={8*6} height={10*6} viewBox="0 0 8 10">{rc}</svg>;}
-
-/* ---- dates ---- */
-const pad=n=>String(n).padStart(2,"0");
-const today=()=>{const d=new Date();return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
-const parseD=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);};
-const addDays=(s,n)=>{const d=parseD(s);d.setDate(d.getDate()+n);return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
-const diffDays=(a,b)=>Math.round((parseD(a)-parseD(b))/86400000);
-const LEVELS=["N5","N4","N3","N2","N1"];
-const ANGLES=["something small you noticed","a conversation you had","something that annoyed you","a plan for tomorrow","a memory this stirred","how your energy felt","food today","something you're looking forward to","a tiny win","weather and mood","a person you saw","a decision you made"];
-
-function Diary({initial}){
-  const [level,setLevel]=useState(initial.level||"N5");
-  const [romaji,setRomaji]=useState(initial.romaji!==false);
-  const [known,setKnown]=useState(initial.known||null);
-  const [aboutMe,setAboutMe]=useState(initial.aboutMe||"");
-  const [pack,setPack]=useState(initial.pack||null);
-  const [entries,setEntries]=useState(initial.entries||{});
-  const [frozen,setFrozen]=useState(initial.frozen||[]);
-  const [gstats,setGstats]=useState(initial.gstats||{});
-  const [daily,setDaily]=useState(initial.daily||null);
-  const [input,setInput]=useState("");
-  const [feedback,setFeedback]=useState(null);
-  const [checking,setChecking]=useState(false);
-  const [error,setError]=useState("");
-  const [hatching,setHatching]=useState(false);
-  const [flash,setFlash]=useState(false);
-  const [practice,setPractice]=useState(false);
-  const [showTune,setShowTune]=useState(false);
-  const [importError,setImportError]=useState("");
-  const taRef=useRef(null);
-  const td=today();
-
-  // freeze reconciliation once/day
-  useEffect(()=>{
-    const dates=Object.keys(entries).sort();
-    if(dates.length&&initial.recon!==td){
-      const last=dates[dates.length-1],missed=diffDays(td,last)-1,avail=Math.floor(dates.length/7)-frozen.length;
-      if(missed>0&&missed<=avail){const nf=[...frozen];for(let i=1;i<=missed;i++)nf.push(addDays(last,i));setFrozen(nf);saveState({frozen:nf,recon:td});}
-      else saveState({recon:td});
-    }
-  },[]); // eslint-disable-line
-
-  const kGrammar=known?(known.grammar||[]):[];
-  const kVocab=known?(known.vocab||[]).map(x=>x.text):[];
-  function pickTargets(){if(!kGrammar.length)return[];const sc=kGrammar.map(g=>{const s=gstats[g.text]||{};return{g,u:s.used||0,l:s.last||"0000",r:Math.random()};});sc.sort((a,b)=>a.u-b.u||(a.l<b.l?-1:a.l>b.l?1:0)||a.r-b.r);return sc.slice(0,3).map(x=>({text:x.g.text,meaning:x.g.meaning}));}
-
-  useEffect(()=>{(async()=>{
-    if(daily&&daily.date===td)return;
-    const targets=pickTargets(),angle=ANGLES[(Math.random()*ANGLES.length)|0];
-    let nudge="Write a line or two about your day.";
-    try{const ask=Math.random()<0.4;const j=await callClaude(`Write one warm one-line diary nudge (English) for a JLPT ${level} learner keeping a daily Japanese journal. Return ONLY {"nudge":string}.${aboutMe.trim()?` Learner: ${aboutMe.trim()}.`:""} Theme: ${angle}.${targets.length?` Invite them to use naturally: ${targets.map(t=>t.text).join("、")}.`:""}${ask?" Make it a friendly question about their own life.":""} One sentence, encouraging, not corny.`,"nudge");if(j.nudge)nudge=j.nudge;}catch{}
-    const d={date:td,targets,nudge};setDaily(d);saveState({daily:d});
-  })();},[known,level]); // eslint-disable-line
-
-  const dates=Object.keys(entries);
-  const active=new Set([...dates,...frozen]);
-  const todayDone=!!entries[td];
-  const streak=(()=>{let c=active.has(td)?td:addDays(td,-1);if(!active.has(c))return 0;let n=0;while(active.has(c)){n++;c=addDays(c,-1);}return n;})();
-  const longest=(()=>{const all=[...active].sort();let best=0,run=0,prev=null;for(const d of all){if(prev&&diffDays(d,prev)===1)run++;else run=1;best=Math.max(best,run);prev=d;}return best;})();
-  const freezes=Math.max(0,Math.floor(dates.length/7)-frozen.length);
-
-  const onType=e=>{const v=e.target.value;if(romaji){setInput(toKana(v));requestAnimationFrame(()=>{const el=taRef.current;if(el)el.selectionStart=el.selectionEnd=el.value.length;});}else setInput(v);};
-
-  const check=async()=>{
-    if(!input.trim()||checking)return;setChecking(true);setError("");setFeedback(null);
-    const targets=daily?.targets||[];
-    try{
-      const sys=`You are a precise, encouraging Japanese diary tutor. Learner is JLPT ${level}. Today's nudge: "${daily?.nudge||""}". They wrote a diary line in Japanese.
-Return ONLY minified JSON: corrected(natural correct version of intent), matched(bool), rubric({grammar:0-5,naturalness:0-5,scope:0-5}), notes(array up to 3 {span,fix,why}), suggestion(one richer natural alternative or ""), encouragement(one honest line), targets(array — for EACH target below: {point, used(bool used correctly), note}).
-Targets: ${targets.length?targets.map(t=>t.text).join("、"):"(none)"}.
-Never invent errors; many phrasings valid. Japanese in Japanese, English explanations.${known?` They studied these; build feedback from them, flag reaching beyond.\nGRAMMAR: ${kGrammar.map(x=>x.text).join("、")}\nVOCAB(${kVocab.length}): ${kVocab.join("、")}`:""}`;
-      const j=await callClaude(sys,input.trim());
-      setFeedback(j);
-      if(targets.length){const ng={...gstats};targets.forEach(t=>{const hit=(j.targets||[]).find(x=>x.point===t.text);const s=ng[t.text]||{used:0};ng[t.text]={used:s.used+(hit&&hit.used?1:0),last:td};});setGstats(ng);saveState({gstats:ng});}
-      if(!practice&&!todayDone)recordDay(input.trim(),j);
-    }catch(e){setError("Couldn't read that one. Try again in a moment.");}
-    finally{setChecking(false);}
-  };
-
-  const recordDay=(text,j)=>{setHatching(true);setTimeout(()=>{setFlash(true);setTimeout(()=>setFlash(false),400);const special=(streak+1)%7===0||(dates.length+1)%10===0;const sid=1+((Math.random()*251)|0);const entry={text,corrected:j.corrected,ts:Date.now(),targets:(j.targets||[]),sid,special};const ne={...entries,[td]:entry};setEntries(ne);saveState({entries:ne});setHatching(false);},820);};
-
-  const importKnown=async file=>{setImportError("");try{const j=JSON.parse(await file.text());if(!Array.isArray(j.grammar)&&!Array.isArray(j.vocab))throw 0;const clean={grammar:j.grammar||[],vocab:j.vocab||[],exported_at:j.exported_at||null};setKnown(clean);saveState({known:clean});setDaily(null);}catch{setImportError("Expected a known.json like { grammar:[...], vocab:[...] }.");}};
-
-  const setLvl=lv=>{setLevel(lv);saveState({level:lv});};
-  const setRom=r=>{setRomaji(r);saveState({romaji:r});};
-  const setAbout=v=>{setAboutMe(v);saveState({aboutMe:v});};
-  const savePack=(base,egg)=>{const p={base:base||"",egg:egg||""};setPack(p);saveState({pack:p});};
-
-  const Bar=({jp,en,v})=>(<div style={{display:"flex",alignItems:"center",gap:8,margin:"4px 0"}}><div style={{width:120,fontSize:11}}>{jp} <span style={{color:"var(--mid)"}}>{en}</span></div><div className="barwrap" style={{flex:1}}><div className="barfill" style={{width:`${Math.max(0,Math.min(5,v))/5*100}%`}}/></div><div style={{width:24,textAlign:"right",fontSize:10,color:"var(--mid)"}}>{v}/5</div></div>);
-
-  const heat=[];for(let i=27;i>=0;i--){const d=addDays(td,-i);heat.push({d,on:!!entries[d],frz:frozen.includes(d),today:d===td});}
-  const garden=Object.keys(entries).sort().map(d=>({d,...entries[d]}));
-  const todayEntry=entries[td];
-
-  return(<div className="wrap">
-    {flash&&<div className="flash"/>}
-    <div className="center"><div style={{fontSize:24,letterSpacing:".1em"}}>日記</div><div className="lbl" style={{marginTop:6}}>a sentence a day</div></div>
-    <div className="center" style={{margin:"28px 0 4px"}}><div className="streaknum" style={{color:streak>0?"var(--ink)":"var(--mid)"}}>{streak}</div><div className="lbl" style={{marginTop:8}}>day streak</div><div style={{fontSize:11,color:"var(--mid)",marginTop:10}}>longest {longest} · {freezes} freeze{freezes===1?"":"s"} banked</div></div>
-    <div className="heat">{heat.map(c=><div key={c.d} className={"cell"+(c.on?" on":"")+(c.frz?" frz":"")+(c.today?" today":"")} title={c.d}/>)}</div>
-    <div className="sep">— — —</div>
-    <div className="center" style={{display:"flex",gap:2,justifyContent:"center",flexWrap:"wrap",alignItems:"center"}}>{LEVELS.map(lv=><button key={lv} className={"lv"+(lv===level?" on":"")} onClick={()=>setLvl(lv)}>{lv}</button>)}<span style={{color:"var(--faint)"}}>|</span><button className={"lv"+(romaji?" on":"")} onClick={()=>setRom(!romaji)}>{romaji?"あ romaji":"romaji off"}</button></div>
-    <div style={{marginTop:22}}>
-      <div className="center lbl">{new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"})}</div>
-      {todayDone&&!practice?(
-        <div className="center" style={{marginTop:16}}>
-          <div className="lk red" style={{cursor:"default"}}>✓ entry logged</div>
-          {todayEntry&&<div style={{fontSize:16,margin:"14px 0",lineHeight:1.8}}>{todayEntry.corrected}</div>}
-          {todayEntry&&<div style={{display:"flex",justifyContent:"center",margin:"16px 0"}}><div className="pop"><Creature c={todayEntry} pack={pack} px={7}/></div></div>}
-          <div style={{fontSize:11,color:"var(--mid)"}}>come back tomorrow to keep the streak</div>
-          <div style={{marginTop:14}}><button className="lk mid" onClick={()=>{setPractice(true);setFeedback(null);setInput("");}}>practice more (no hatch) &gt;&gt;&gt;</button></div>
-        </div>
-      ):(<>
-        <div className="center" style={{fontSize:14,margin:"12px 0 16px",lineHeight:1.7}}>{daily?daily.nudge:"…"}{practice&&<span style={{color:"var(--mid)"}}> · extra practice</span>}</div>
-        {daily&&daily.targets.length>0&&<div className="center" style={{marginBottom:16}}><div className="lbl" style={{marginBottom:7}}>today, try to use</div>{daily.targets.map(t=><span key={t.text} className="tchip">{t.text} <span className="m">{t.meaning}</span></span>)}</div>}
-        {!known&&<div className="center" style={{fontSize:11,color:"var(--mid)",marginBottom:14}}>import your bunpro set (tune, below) for daily grammar targets</div>}
-        <div style={{display:"flex",gap:14,alignItems:"flex-start"}}>
-          <div style={{flex:1}}>
-            <textarea ref={taRef} rows={3} value={input} onChange={onType} onKeyDown={e=>{if((e.metaKey||e.ctrlKey)&&e.key==="Enter")check();}} placeholder={romaji?"type romaji — kyou wa…":"今日は…"}/>
-            <div style={{display:"flex",alignItems:"center",gap:14,marginTop:12}}><button className="primary" onClick={check} disabled={checking||!input.trim()}>{checking?"reading…":practice?"check":"log today"}</button><span style={{fontSize:10,color:"var(--mid)"}}>⌘/Ctrl+↵</span>{practice&&<button className="lk mid" onClick={()=>setPractice(false)}>back</button>}</div>
-          </div>
-          {!practice&&<div style={{width:60,textAlign:"center",flexShrink:0}}><EggView hatch={hatching} pack={pack}/><div className="lbl" style={{marginTop:6,fontSize:8}}>{hatching?"!!!":"egg"}</div></div>}
-        </div>
-        {error&&<div style={{color:"var(--red)",fontSize:12,marginTop:10}}>{error}</div>}
-      </>)}
-    </div>
-    {feedback&&(<div className="box" style={{marginTop:22}}>
-      <div className="lbl">feedback</div>
-      <div style={{fontSize:12,margin:"8px 0 12px",color:feedback.matched?"var(--ink)":"var(--red)"}}>{feedback.matched?"✓ それで伝わります":"なおすところがあります"}</div>
-      <div className="lbl">natural version</div>
-      <div style={{fontSize:18,lineHeight:1.7,borderBottom:"2px solid var(--ink)",display:"inline-block",margin:"6px 0 16px"}}>{feedback.corrected}</div>
-      {feedback.rubric&&<div style={{marginBottom:16}}><Bar jp="文法" en="grammar" v={feedback.rubric.grammar}/><Bar jp="自然さ" en="natural" v={feedback.rubric.naturalness}/><Bar jp="範囲" en={`${level} scope`} v={feedback.rubric.scope}/></div>}
-      {Array.isArray(feedback.targets)&&feedback.targets.length>0&&<div style={{marginBottom:16}}><div className="lbl" style={{marginBottom:7}}>grammar targets</div>{feedback.targets.map((t,i)=><span key={i} className={"tchip"+(t.used?" hit":"")}>{t.point} <span className="m">{t.used?"✓":"—"}</span></span>)}</div>}
-      {Array.isArray(feedback.notes)&&feedback.notes.length>0&&<div style={{marginBottom:14}}>{feedback.notes.map((n,i)=><div key={i} style={{padding:"7px 0",borderTop:i?"1px solid var(--faint)":"none",fontSize:13}}>{n.span?<span style={{textDecoration:"line-through",color:"var(--mid)"}}>{n.span}</span>:null}{n.span?" → ":""}{n.fix}<div style={{color:"var(--mid)",fontSize:11}}>{n.why}</div></div>)}</div>}
-      {feedback.suggestion&&<div style={{border:"1px solid var(--faint)",padding:"10px 12px",marginBottom:12}}><div className="lbl" style={{marginBottom:4}}>another way</div><div style={{fontSize:15}}>{feedback.suggestion}</div></div>}
-      {feedback.encouragement&&<div style={{fontSize:13}}>{feedback.encouragement}</div>}
-      <div style={{fontSize:10,color:"var(--mid)",marginTop:12,lineHeight:1.6}}>a study aid, not a grade — japanese has many right answers and this can be off.</div>
-    </div>)}
-    <div className="sep">— — —</div>
-    <div className="center lbl">collection · {garden.length}</div>
-    {garden.length===0?<div className="center" style={{fontSize:11,color:"var(--mid)",marginTop:12}}>log today and your egg hatches. each critter keeps the sentence that made it — hover to read.</div>:<div className="garden" style={{marginTop:18}}>{garden.slice().reverse().map(e=><div key={e.d} className="gcell pop" tabIndex={0}><Creature c={e} pack={pack} px={5}/><div className="bubble"><div className="d">{e.d}</div><div className="s">{e.corrected||e.text}</div></div></div>)}</div>}
-    <div className="sep">— — —</div>
-    <div className="center"><button className="lk mid" onClick={()=>setShowTune(s=>!s)}>{showTune?"tune ▾":"tune ▸"}</button></div>
-    {showTune&&<div className="box" style={{marginTop:16}}>
-      <div className="lbl">bunpro known set</div>
-      {known?(<div style={{display:"flex",alignItems:"center",gap:10,margin:"8px 0 16px"}}><div style={{fontSize:12,flex:1}}>tuned to {kGrammar.length} grammar + {kVocab.length} vocab{known.exported_at&&<span style={{color:"var(--mid)"}}> · {new Date(known.exported_at).toLocaleDateString()}</span>}</div><button className="lk red" onClick={()=>{setKnown(null);saveState({known:null});}}>remove</button></div>):<div style={{margin:"8px 0 4px"}}><label className="lk"><span style={{textDecoration:"underline"}}>import known.json &gt;&gt;&gt;</span><input type="file" accept=".json,application/json" style={{display:"none"}} onChange={e=>{const f=e.target.files&&e.target.files[0];if(f)importKnown(f);}}/></label></div>}
-      {importError&&<div style={{color:"var(--red)",fontSize:11,marginBottom:8}}>{importError}</div>}
-      <div className="box" style={{margin:"12px 0 16px",borderColor:"var(--faint)"}}><div className="lbl" style={{marginBottom:8}}>how to sync from bunpro</div><ol style={{margin:0,paddingLeft:16,fontSize:12,lineHeight:1.8}}><li>install tampermonkey, add the bunpro-export userscript</li><li>open bunpro.jp logged in → click ⬇ export known.json (bottom-right)</li><li>back here → import known.json above. it syncs to all your devices.</li><li style={{color:"var(--mid)"}}>no tampermonkey? paste the console version into bunpro's dev console.</li></ol></div>
-      <div className="lbl" style={{marginBottom:8}}>sprite pack (optional)</div>
-      <div style={{fontSize:11,color:"var(--mid)",marginBottom:8,lineHeight:1.6}}>your own creature sprites: set a base URL where <b>0001.gif … 0251.gif</b> live. blank = built-in critters.</div>
-      <input type="text" defaultValue={pack?.base||""} placeholder="https://your-site.com/sprites" onBlur={e=>savePack(e.target.value,pack?.egg)} style={{marginBottom:8,fontSize:12}}/>
-      <input type="text" defaultValue={pack?.egg||""} placeholder="egg image URL (optional)" onBlur={e=>savePack(pack?.base,e.target.value)} style={{marginBottom:6,fontSize:12}}/>
-      {pack&&(pack.base||pack.egg)&&<button className="lk red" onClick={()=>{setPack(null);saveState({pack:null});}}>clear pack</button>}
-      <div className="lbl" style={{margin:"16px 0 8px"}}>about you</div>
-      <input type="text" defaultValue={aboutMe} onBlur={e=>setAbout(e.target.value)} placeholder="e.g. i make electronic music, love ramen & cats" style={{fontSize:12}}/>
-      <div style={{fontSize:11,color:"var(--mid)",marginTop:6}}>tailors the daily nudge and sometimes asks about your life.</div>
-    </div>}
-    <div className="marq"><div className="marqin">{(streak>0?`day ${streak} · keep it alive · `:`start your streak today · `).repeat(8)}</div></div>
-  </div>);
-}
-
-function App(){
-  const [phase,setPhase]=useState(AUTH.secret?"loading":"gate");
-  const [initial,setInitial]=useState(null);
-  const [pw,setPw]=useState("");
-  const [err,setErr]=useState("");
-  const enter=async(secret)=>{
-    AUTH.secret=secret;setPhase("loading");setErr("");
-    try{const s=await loadState();blob=s||{};setInitial(blob);localStorage.setItem("nikki_secret",secret);setPhase("ready");}
-    catch(e){if(e.code===401){setErr("wrong passphrase");}else{setErr("couldn't connect — try again");}AUTH.secret="";localStorage.removeItem("nikki_secret");setPhase("gate");}
-  };
-  useEffect(()=>{if(AUTH.secret)enter(AUTH.secret);},[]); // eslint-disable-line
-  if(phase==="ready")return <Diary initial={initial}/>;
-  if(phase==="loading")return <div className="wrap center" style={{marginTop:80,color:"var(--mid)"}}>…</div>;
-  return <div className="wrap center" style={{marginTop:80}}>
-    <div style={{fontSize:24,letterSpacing:".1em"}}>日記</div>
-    <div className="lbl" style={{margin:"8px 0 24px"}}>enter passphrase</div>
-    <div style={{maxWidth:280,margin:"0 auto",textAlign:"left"}}>
-      <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&pw)enter(pw);}} placeholder="passphrase" autoFocus/>
-      <div style={{marginTop:12}}><button className="primary" onClick={()=>pw&&enter(pw)} disabled={!pw}>enter</button></div>
-      {err&&<div style={{color:"var(--red)",fontSize:12,marginTop:10}}>{err}</div>}
-    </div>
-  </div>;
-}
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
